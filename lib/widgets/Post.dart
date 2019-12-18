@@ -123,29 +123,33 @@ class _PostState extends State<Post> {
                   : Container(
                       height: widget.post.imageHeight.toDouble(),
                     )
-              : Container(
-                  height: widget.post.imageHeight > 0
-                      ? widget.post.imageHeight.toDouble()
-                      : image.height,
-                  child: widget.post.network
-                      ? Image.network(
-                          widget.post.imageUrl,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes
-                                    : null,
-                              ),
-                            );
-                          },
-                        )
-                      : image,
-                ),
+              : widget.post.imageUrl == 'no-image'
+                  ? Container()
+                  : Container(
+                      height: widget.post.imageHeight > 0
+                          ? widget.post.imageHeight.toDouble()
+                          : image.height,
+                      child: widget.post.network
+                          ? Image.network(
+                              widget.post.imageUrl,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes
+                                        : null,
+                                  ),
+                                );
+                              },
+                            )
+                          : image,
+                    ),
           Container(
             alignment: AlignmentDirectional.topStart,
             padding: EdgeInsets.only(left: 30, right: 30),

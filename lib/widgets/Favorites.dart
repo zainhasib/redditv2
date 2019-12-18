@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:redditv2/screens/Subreddit.dart';
+
 class Favorite extends StatefulWidget {
   @override
   _FavoriteState createState() => _FavoriteState();
@@ -58,6 +60,15 @@ class _FavoriteState extends State<Favorite> {
           list.forEach(
             (k, v) => subreddits.add(
               InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctxt) => Subreddit(
+                          subreddit: k,
+                        ),
+                      ));
+                },
                 child: Container(
                   color: Color(0xFF222222),
                   width: MediaQuery.of(context).size.width,
