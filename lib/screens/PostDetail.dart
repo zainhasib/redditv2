@@ -27,7 +27,7 @@ class _PostDetailState extends State<PostDetail> {
     return response;
   }
 
-  Future fetchData() async {
+  Future<dynamic> fetchData() async {
     var url = 'https://oauth.reddit.com/r/' +
         widget.post.subreddit +
         '/comments/' +
@@ -39,13 +39,17 @@ class _PostDetailState extends State<PostDetail> {
     return response;
   }
 
+  void parseData(http.Response res) {}
+
   @override
   void initState() {
     super.initState();
     fetchToken().then((res) {
       accessToken = json.decode(res.body)['access_token'];
       fetchData().then((res) {
-        loaded = true;
+        setState(() {
+          loaded = true;
+        });
         var com = json.decode(res.body)[1];
         List<dynamic> chain = com['data']['children'];
         chain.forEach((v) {

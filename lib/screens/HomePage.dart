@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future fetchData() async {
-    var url = 'https://oauth.reddit.com/r/onepiece/best?limit=20&raw_json=1';
+    var url = 'https://oauth.reddit.com/best?limit=20&raw_json=1';
     Map<String, String> headers = {'Authorization': 'Bearer ' + accessToken};
     var response = await http.get(url, headers: headers);
     return response;
@@ -61,7 +61,23 @@ class _MyHomePageState extends State<MyHomePage> {
           data.forEach((f) {
             var postData = f['data'];
             if (f['data']['preview'] != null) {
-              if (f['data']['preview']['images'][0]['variants']['gif'] !=
+              if (f['data']['is_video']) {
+                posts.add(
+                  PostModel.Post(
+                    postData['id'],
+                    postData['title'],
+                    postData['secure_media']['reddit_video']['fallback_url'],
+                    true,
+                    postData['secure_media']['reddit_video']['height'],
+                    postData['likes'],
+                    postData['subreddit'],
+                    postData['ups'],
+                    postData['downs'],
+                    postData['created_utc'],
+                    postData['is_video'],
+                  ),
+                );
+              } else if (f['data']['preview']['images'][0]['variants']['gif'] !=
                   null) {
                 posts.add(
                   PostModel.Post(
@@ -77,23 +93,23 @@ class _MyHomePageState extends State<MyHomePage> {
                     postData['ups'],
                     postData['downs'],
                     postData['created_utc'],
+                    postData['is_video'],
                   ),
                 );
               } else {
-                posts.add(
-                  PostModel.Post(
-                      postData['id'],
-                      postData['title'],
-                      postData['preview']['images'][0]['resolutions'][2]['url'],
-                      true,
-                      postData['preview']['images'][0]['resolutions'][2]
-                          ['height'],
-                      postData['likes'],
-                      postData['subreddit'],
-                      postData['ups'],
-                      postData['downs'],
-                      postData['created_utc']),
-                );
+                posts.add(PostModel.Post(
+                  postData['id'],
+                  postData['title'],
+                  postData['preview']['images'][0]['resolutions'][2]['url'],
+                  true,
+                  postData['preview']['images'][0]['resolutions'][2]['height'],
+                  postData['likes'],
+                  postData['subreddit'],
+                  postData['ups'],
+                  postData['downs'],
+                  postData['created_utc'],
+                  postData['is_video'],
+                ));
               }
             } else {
               posts.add(
@@ -108,6 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   postData['ups'],
                   postData['downs'],
                   postData['created_utc'],
+                  postData['is_video'],
                 ),
               );
             }
@@ -115,11 +132,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }).catchError((e) {
         posts.add(PostModel.Post('4', e.toString(), 'assets/post.jpg', false,
-            100, false, 'Debug', 12, 12, 0));
+            100, false, 'Debug', 12, 12, 0, false));
       });
     }).catchError((e) {
       posts.add(PostModel.Post('5', e.toString(), 'assets/post.jpg', false, 0,
-          false, 'Debug', 12, 12, 0));
+          false, 'Debug', 12, 12, 0, false));
     });
   }
 

@@ -9,9 +9,10 @@ class Post {
   int ups;
   int downs;
   double createdUtc;
+  bool isVideo;
 
   Post(id, title, imageUrl, network, imageHeight, likes, subreddit, ups, downs,
-      createdUtc) {
+      createdUtc, isVideo) {
     this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
@@ -22,5 +23,6 @@ class Post {
     this.ups = ups;
     this.downs = downs;
     this.createdUtc = createdUtc;
+    this.isVideo = isVideo;
   }
 }

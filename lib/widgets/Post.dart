@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:redditv2/models/Post.dart' as PostModel;
+import 'package:video_player/video_player.dart';
 
 class Post extends StatefulWidget {
   const Post({Key key, this.post}) : super(key: key);
@@ -11,6 +12,19 @@ class Post extends StatefulWidget {
 class _PostState extends State<Post> {
   bool upvoted = false;
   bool downvoted = false;
+  VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(widget.post.imageUrl)
+      ..initialize().then((_) {
+        setState(() {
+          _controller.play();
+          _controller.setLooping(true);
+        });
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,28 +82,70 @@ class _PostState extends State<Post> {
             ),
             padding: EdgeInsets.only(top: 4, bottom: 8, left: 14, right: 8),
           ),
-          Container(
-            height: widget.post.imageHeight > 0
-                ? widget.post.imageHeight.toDouble()
-                : image.height,
-            child: widget.post.network
-                ? Image.network(
-                    widget.post.imageUrl,
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes
-                              : null,
+          widget.post.isVideo
+              ? _controller.value.initialized
+                  ? Column(
+                      children: <Widget>[
+                        Container(
+                          child: AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: VideoPlayer(_controller),
+                          ),
                         ),
-                      );
-                    },
-                  )
-                : image,
-          ),
+                        Container(
+                          child: Container(
+                            child: Center(
+                              child: FlatButton(
+                                color: Colors.transparent,
+                                splashColor: Colors.red,
+                                child: Icon(
+                                  _controller.value.isPlaying
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    if (_controller.value.isPlaying) {
+                                      _controller.pause();
+                                    } else {
+                                      _controller.play();
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  : Container(
+                      height: widget.post.imageHeight.toDouble(),
+                    )
+              : Container(
+                  height: widget.post.imageHeight > 0
+                      ? widget.post.imageHeight.toDouble()
+                      : image.height,
+                  child: widget.post.network
+                      ? Image.network(
+                          widget.post.imageUrl,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
+                        )
+                      : image,
+                ),
           Container(
             alignment: AlignmentDirectional.topStart,
             padding: EdgeInsets.only(left: 30, right: 30),
@@ -142,5 +198,11 @@ class _PostState extends State<Post> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 }
