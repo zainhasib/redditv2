@@ -54,7 +54,6 @@ class _FavoriteState extends State<Favorite> {
           });
         });
         loaded = true;
-        print(list);
         setState(() {
           list.forEach(
             (k, v) => subreddits.add(
