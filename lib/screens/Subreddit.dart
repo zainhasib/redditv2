@@ -28,7 +28,8 @@ class _Subreddit extends State<Subreddit> {
             width: double.infinity,
             height: double.infinity,
             child: PostList(
-              type: 'r/' + widget.subreddit + '/best',
+              type: 'best',
+              endpoint: 'r/' + widget.subreddit,
               limit: '20',
             ),
           )),

@@ -14,11 +14,20 @@ class _DrawerState extends State<MyDrawer> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text(
-              'User',
-              style: TextStyle(
-                color: Colors.white,
-              ),
+            child: Column(
+              children: <Widget>[
+                Image.asset(
+                  'assets/profile.jpg',
+                  height: 120,
+                  width: 120,
+                ),
+                Text(
+                  'Saloni',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
             decoration: BoxDecoration(
               color: Colors.red,
@@ -26,7 +35,7 @@ class _DrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              'Item 1',
+              'Idiot',
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -38,7 +47,7 @@ class _DrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              'Item 2',
+              'Bachaa',
               style: TextStyle(
                 color: Colors.white,
               ),

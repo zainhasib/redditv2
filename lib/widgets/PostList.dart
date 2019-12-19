@@ -7,9 +7,10 @@ import '../models/Post.dart' as PostModel;
 import 'dart:convert';
 
 class PostList extends StatefulWidget {
-  PostList({Key key, this.type, this.limit}) : super(key: key);
+  PostList({Key key, this.type, this.limit, this.endpoint}) : super(key: key);
   final type;
   final limit;
+  final endpoint;
   @override
   _PostListState createState() => _PostListState();
 }
@@ -20,9 +21,13 @@ class _PostListState extends State<PostList> {
   var posts = <PostModel.Post>[];
   ScrollController _scrollController = ScrollController();
   bool requestGoingOn = false;
+  String _dropdownValue = '';
 
-  Future fetchData(String type, String limit, String after) async {
+  Future fetchData(
+      String endpoint, String type, String limit, String after) async {
     var url = 'https://oauth.reddit.com/' +
+        endpoint +
+        '/' +
         type +
         '?limit=' +
         limit +
@@ -35,14 +40,14 @@ class _PostListState extends State<PostList> {
     return response;
   }
 
-  void fetchCompleteData(String after) {
+  void fetchCompleteData(String type, String after) {
     setState(() {
       requestGoingOn = true;
     });
     fetchToken().then((v) {
       Map<String, dynamic> tokens = json.decode(v.body);
       accessToken = tokens['access_token'];
-      fetchData(widget.type, widget.limit, after).then((value) {
+      fetchData(widget.endpoint, type, widget.limit, after).then((value) {
         setState(() {
           requestGoingOn = false;
         });
@@ -165,29 +170,23 @@ class _PostListState extends State<PostList> {
     });
   }
 
-  void _scrollListener() {
-    print(_scrollController.position.extentAfter);
-    if (_scrollController.position.extentAfter < 500) {
-      setState(() {});
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    this.fetchCompleteData('');
+    _dropdownValue = widget.type;
+    this.fetchCompleteData(widget.type, '');
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         if (!requestGoingOn)
-          this.fetchCompleteData('t3_' + posts[posts.length - 1].id);
+          this.fetchCompleteData(
+              _dropdownValue, 't3_' + posts[posts.length - 1].id);
       }
     });
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -219,25 +218,71 @@ class _PostListState extends State<PostList> {
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         // Show your info
-                        if (index < posts.length) {
+                        if (index == 0) {
+                          return Container(
+                            padding: EdgeInsets.all(3),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                  'Sort',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(
+                                    left: 12,
+                                    right: 20,
+                                  ),
+                                  child: DropdownButton<String>(
+                                    style: TextStyle(color: Colors.white),
+                                    hint: Text(
+                                      _dropdownValue,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    items: <String>['top', 'best', 'new']
+                                        .map((String value) {
+                                      return new DropdownMenuItem<String>(
+                                        value: value,
+                                        child: new Text(
+                                          value,
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (_) {
+                                      setState(() {
+                                        _dropdownValue = _;
+                                      });
+                                      posts.clear();
+                                      setState(() {
+                                        loaded = false;
+                                      });
+                                      this.fetchCompleteData(_, '');
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else if (index <= posts.length) {
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (ctxt) =>
-                                        PostDetail(post: posts[index]),
+                                        PostDetail(post: posts[index - 1]),
                                   ));
                             },
                             child: Post(
-                              post: posts[index],
+                              post: posts[index - 1],
                             ),
                           );
                         } else {
                           return Center(child: CircularProgressIndicator());
                         }
                       },
-                      itemCount: posts.length + 1,
+                      itemCount: posts.length + 2,
                     ),
                   ],
           )

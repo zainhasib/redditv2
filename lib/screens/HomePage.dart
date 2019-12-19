@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: PostList(
                     type: 'best',
                     limit: '20',
+                    endpoint: '',
                   ),
                 ),
                 Container(
@@ -101,25 +102,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: PostList(
                     type: 'top',
                     limit: '20',
+                    endpoint: '',
                   ),
                 ),
               ],
             )
           : _selectedIndex == 1
               ? Favorite()
-              : NotificationListener(
-                  child: ListView.builder(
-                    itemCount: 200,
-                    itemBuilder: (ctxt, index) {
-                      return Text('Idiot goluu : $index');
-                    },
-                  ),
-                  onNotification: (t) {
-                    if (t is ScrollEndNotification) {
-                      print(t);
-                    }
-                    return false;
-                  },
+              : Column(
+                  children: <Widget>[
+                    Container(
+                      child: Image.asset('assets/profile.jpg'),
+                    ),
+                    Container(
+                      color: Colors.black,
+                      child: Text(
+                        'Goluuuuu😜',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
       drawer: Drawer(
         child: MyDrawer(),

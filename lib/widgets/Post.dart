@@ -121,27 +121,26 @@ class _PostState extends State<Post> {
                         ),
                         Container(
                           child: Container(
-                            child: Center(
-                              child: FlatButton(
-                                color: Colors.transparent,
-                                splashColor: Colors.red,
-                                child: Icon(
-                                  _controller.value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  size: 50,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    if (_controller.value.isPlaying) {
-                                      _controller.pause();
-                                    } else {
-                                      _controller.play();
-                                    }
-                                  });
-                                },
+                            alignment: AlignmentDirectional.center,
+                            child: FlatButton(
+                              color: Colors.transparent,
+                              splashColor: Colors.red,
+                              child: Icon(
+                                _controller.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                size: 40,
+                                color: Colors.white,
                               ),
+                              onPressed: () {
+                                setState(() {
+                                  if (_controller.value.isPlaying) {
+                                    _controller.pause();
+                                  } else {
+                                    _controller.play();
+                                  }
+                                });
+                              },
                             ),
                           ),
                         )
