@@ -90,36 +90,63 @@ class _MyHomePageState extends State<MyHomePage> {
           ? TabBarView(
               children: <Widget>[
                 Container(
+                  width: MediaQuery.of(context).size.width,
                   color: Colors.black,
-                  child: ListView(
-                    scrollDirection: Axis.vertical,
+                  child: Column(
                     children: <Widget>[
-                      PostList(
-                        type: 'best',
-                        limit: '20',
+                      Container(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: DropdownButton<String>(
+                          style: TextStyle(color: Colors.white),
+                          items:
+                              <String>['Hot', 'Top', 'New'].map((String value) {
+                            return new DropdownMenuItem<String>(
+                              value: value,
+                              child: new Text(
+                                value,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (_) {},
+                        ),
                       ),
+                      Expanded(
+                        child: PostList(
+                          type: 'best',
+                          limit: '20',
+                        ),
+                      )
                     ],
                   ),
                 ),
                 Container(
                   color: Colors.black,
-                  child: ListView(
-                    scrollDirection: Axis.vertical,
-                    children: <Widget>[
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            PostList(
-                              type: 'top',
-                              limit: '20',
-                            ),
-                          ])
-                    ],
+                  child: PostList(
+                    type: 'top',
+                    limit: '20',
                   ),
                 ),
               ],
             )
-          : (_selectedIndex == 1 ? Favorite() : Container()),
+          : _selectedIndex == 1
+              ? Favorite()
+              : NotificationListener(
+                  child: ListView.builder(
+                    itemCount: 200,
+                    itemBuilder: (ctxt, index) {
+                      return Text('Idiot goluu : $index');
+                    },
+                  ),
+                  onNotification: (t) {
+                    if (t is ScrollEndNotification) {
+                      print(t);
+                    }
+                    return false;
+                  },
+                ),
       drawer: Drawer(
         child: MyDrawer(),
       ),

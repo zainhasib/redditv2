@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.black,
         accentColor: Colors.red,
         fontFamily: 'WorkSans',
+        canvasColor: Colors.black,
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             TargetPlatform.android: CupertinoPageTransitionsBuilder(),

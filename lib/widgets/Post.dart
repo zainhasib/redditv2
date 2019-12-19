@@ -78,7 +78,7 @@ class _PostState extends State<Post> {
       diffUnit = ' m';
     } else if (date.inHours > 24) {
       diff = date.inHours ~/ 24;
-      diffUnit = ' h';
+      diffUnit = ' d';
     } else {
       diff = date.inHours;
       diffUnit = ' h';

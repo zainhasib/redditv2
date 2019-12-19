@@ -23,25 +23,20 @@ class _Subreddit extends State<Subreddit> {
         ),
       ),
       body: Container(
-        color: Colors.black,
-        child: ListView(
-          children: [
-            Container(
-              color: Colors.black,
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    child: PostList(
-                      type: 'r/' + widget.subreddit + '/best',
-                      limit: '20',
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+          color: Colors.black,
+          child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: PostList(
+              type: 'r/' + widget.subreddit + '/best',
+              limit: '20',
+            ),
+          )),
     );
   }
 }
+
+// PostList(
+//                       type: 'r/' + widget.subreddit + '/best',
+//                       limit: '20',
+//                     ),

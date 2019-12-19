@@ -19,14 +19,15 @@ class _PostListState extends State<PostList> {
   var loaded = false;
   var posts = <PostModel.Post>[];
   ScrollController _scrollController = ScrollController();
+  bool requestGoingOn = false;
 
-  Future fetchData(String type, String limit, String count) async {
+  Future fetchData(String type, String limit, String after) async {
     var url = 'https://oauth.reddit.com/' +
         type +
         '?limit=' +
         limit +
-        '&count=' +
-        count +
+        '&after=' +
+        after +
         '&raw_json=1';
     print(url);
     Map<String, String> headers = {'Authorization': 'Bearer ' + accessToken};
@@ -34,14 +35,17 @@ class _PostListState extends State<PostList> {
     return response;
   }
 
-  void fetchCompleteData(String count) {
+  void fetchCompleteData(String after) {
     setState(() {
-      loaded = false;
+      requestGoingOn = true;
     });
     fetchToken().then((v) {
       Map<String, dynamic> tokens = json.decode(v.body);
       accessToken = tokens['access_token'];
-      fetchData(widget.type, widget.limit, count).then((value) {
+      fetchData(widget.type, widget.limit, after).then((value) {
+        setState(() {
+          requestGoingOn = false;
+        });
         List<dynamic> data = json.decode(value.body)['data']['children'];
         setState(() {
           loaded = true;
@@ -149,9 +153,15 @@ class _PostListState extends State<PostList> {
         });
       }).catchError((e) {
         print(e);
+        setState(() {
+          requestGoingOn = false;
+        });
       });
     }).catchError((e) {
       print(e);
+      setState(() {
+        requestGoingOn = false;
+      });
     });
   }
 
@@ -165,11 +175,13 @@ class _PostListState extends State<PostList> {
   @override
   void initState() {
     super.initState();
-    this.fetchCompleteData('0');
+    this.fetchCompleteData('');
     _scrollController.addListener(() {
-      print('event added into scrollbar');
-      if (_scrollController.position.maxScrollExtent ==
-          _scrollController.position.pixels) {}
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        if (!requestGoingOn)
+          this.fetchCompleteData('t3_' + posts[posts.length - 1].id);
+      }
     });
   }
 
@@ -181,46 +193,55 @@ class _PostListState extends State<PostList> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      controller: _scrollController,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: !loaded
-            ? [
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: (MediaQuery.of(context).size.height / 2) - 100,
-                  ),
-                  child: CircularProgressIndicator(),
-                )
-              ]
-            : [
-                ListView.builder(
-                  controller: _scrollController,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    if (index < posts.length) {
-                      // Show your info
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (ctxt) =>
-                                    PostDetail(post: posts[index]),
-                              ));
-                        },
-                        child: Post(
-                          post: posts[index],
-                        ),
-                      );
-                    } else {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  },
-                  itemCount: posts.length + 1,
-                )
-              ],
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: !loaded
+                ? [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: (MediaQuery.of(context).size.height / 2) - 100,
+                        left: 20,
+                        right: 20,
+                      ),
+                      child: CircularProgressIndicator(),
+                    )
+                  ]
+                : [
+                    ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        // Show your info
+                        if (index < posts.length) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (ctxt) =>
+                                        PostDetail(post: posts[index]),
+                                  ));
+                            },
+                            child: Post(
+                              post: posts[index],
+                            ),
+                          );
+                        } else {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                      },
+                      itemCount: posts.length + 1,
+                    ),
+                  ],
+          )
+        ],
       ),
     );
   }
