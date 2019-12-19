@@ -16,13 +16,9 @@ class _DrawerState extends State<MyDrawer> {
           DrawerHeader(
             child: Column(
               children: <Widget>[
-                Image.asset(
-                  'assets/profile.jpg',
-                  height: 120,
-                  width: 120,
-                ),
+                Text('Debug'),
                 Text(
-                  'Saloni',
+                  'Debug',
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -35,7 +31,7 @@ class _DrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              'Idiot',
+              'Debug',
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -47,7 +43,7 @@ class _DrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              'Bachaa',
+              'DEbug',
               style: TextStyle(
                 color: Colors.white,
               ),

@@ -112,12 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
               : Column(
                   children: <Widget>[
                     Container(
-                      child: Image.asset('assets/profile.jpg'),
+                      child: Text('Debug'),
                     ),
                     Container(
                       color: Colors.black,
                       child: Text(
-                        'Goluuuuu😜',
+                        'image',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
