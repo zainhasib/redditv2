@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:redditv2/screens/SearchPage.dart';
 
 class HeaderSearch extends StatefulWidget {
   @override
@@ -12,6 +13,15 @@ class _HeaderSearchState extends State<HeaderSearch> {
   Widget build(BuildContext context) {
     return Container(
       child: TextField(
+        onSubmitted: (str) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (ctxt) => SearchPage(
+                  searchTerm: str,
+                ),
+              ));
+        },
         style: TextStyle(
           color: Colors.white,
         ),

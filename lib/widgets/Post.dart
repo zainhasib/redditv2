@@ -49,6 +49,10 @@ class _PostState extends State<Post> {
           _controller.setLooping(true);
         });
       });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     setState(() {
       if (widget.post.likes != null) {
         if (widget.post.likes) {
@@ -60,10 +64,6 @@ class _PostState extends State<Post> {
         upvotes = 0;
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     var image = Image.asset(widget.post.imageUrl);
     var date = DateTime.now().difference(
         new DateTime.fromMillisecondsSinceEpoch(
@@ -194,13 +194,17 @@ class _PostState extends State<Post> {
                           if (upvotes == 0) {
                             upvotes = 1;
                             widget.post.ups += 1;
+                            widget.post.likes = true;
                           } else if (upvotes == -1) {
                             upvotes = 1;
                             widget.post.ups += 2;
+                            widget.post.likes = true;
                           } else {
                             upvotes = 0;
                             widget.post.ups -= 1;
+                            widget.post.likes = null;
                           }
+                          widget.post.upvotes = upvotes;
                           vote(upvotes, 't3_' + widget.post.id);
                         });
                       },
@@ -224,12 +228,15 @@ class _PostState extends State<Post> {
                           if (upvotes == 0) {
                             upvotes = -1;
                             widget.post.ups -= 1;
+                            widget.post.likes = false;
                           } else if (upvotes == 1) {
                             upvotes = -1;
                             widget.post.ups -= 2;
+                            widget.post.likes = false;
                           } else {
                             upvotes = 0;
                             widget.post.ups += 1;
+                            widget.post.likes = null;
                           }
                           vote(upvotes, 't3_' + widget.post.id);
                         });
