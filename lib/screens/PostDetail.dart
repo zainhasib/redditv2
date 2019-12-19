@@ -14,15 +14,13 @@ class PostDetail extends StatefulWidget {
 
 class _PostDetailState extends State<PostDetail> {
   var url =
-      'https://www.reddit.com/api/v1/access_token?grant_type=refresh_token&refresh_token=10667572874-C_BHgHe98oTlUc4O4qKZoyCYFSY';
+      'https://www.reddit.com/api/v1/access_token?grant_type=refresh_token&refresh_token=xxxxxxxx-C_BHgHe98oTlUc4O4qKZoyCYFSY';
   var accessToken;
   var comments = <String>[];
   var loaded = false;
 
   Future fetchToken() async {
-    Map<String, String> headers = {
-      'Authorization': 'Basic M0g2RzY2Qm1ZRmFfOHc6'
-    };
+    Map<String, String> headers = {'Authorization': 'Basic xxxxxxxxxxx'};
     var response = await http.post(url, headers: headers);
     return response;
   }
