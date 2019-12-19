@@ -18,25 +18,30 @@ class _PostListState extends State<PostList> {
   var accessToken;
   var loaded = false;
   var posts = <PostModel.Post>[];
+  ScrollController _scrollController = ScrollController();
 
-  Future fetchData(String type, String limit) async {
-    var url =
-        'https://oauth.reddit.com/' + type + '?limit=' + limit + '&raw_json=1';
+  Future fetchData(String type, String limit, String count) async {
+    var url = 'https://oauth.reddit.com/' +
+        type +
+        '?limit=' +
+        limit +
+        '&count=' +
+        count +
+        '&raw_json=1';
     print(url);
     Map<String, String> headers = {'Authorization': 'Bearer ' + accessToken};
     var response = await http.get(url, headers: headers);
     return response;
   }
 
-  void fetchCompleteData() {
+  void fetchCompleteData(String count) {
     setState(() {
       loaded = false;
     });
-    posts.clear();
     fetchToken().then((v) {
       Map<String, dynamic> tokens = json.decode(v.body);
       accessToken = tokens['access_token'];
-      fetchData(widget.type, widget.limit).then((value) {
+      fetchData(widget.type, widget.limit, count).then((value) {
         List<dynamic> data = json.decode(value.body)['data']['children'];
         setState(() {
           loaded = true;
@@ -150,10 +155,28 @@ class _PostListState extends State<PostList> {
     });
   }
 
+  void _scrollListener() {
+    print(_scrollController.position.extentAfter);
+    if (_scrollController.position.extentAfter < 500) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    this.fetchCompleteData();
+    this.fetchCompleteData('0');
+    _scrollController.addListener(() {
+      print('event added into scrollbar');
+      if (_scrollController.position.maxScrollExtent ==
+          _scrollController.position.pixels) {}
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    super.dispose();
   }
 
   @override
@@ -170,21 +193,50 @@ class _PostListState extends State<PostList> {
                   child: CircularProgressIndicator(),
                 )
               ]
-            : posts
-                .map((post) => GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (ctxt) => PostDetail(post: post),
-                            ));
-                      },
-                      child: Post(
-                        post: post,
-                      ),
-                    ))
-                .toList(),
+            : [
+                ListView.builder(
+                  controller: _scrollController,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    if (index < posts.length) {
+                      // Show your info
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (ctxt) =>
+                                    PostDetail(post: posts[index]),
+                              ));
+                        },
+                        child: Post(
+                          post: posts[index],
+                        ),
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                  itemCount: posts.length + 1,
+                )
+              ],
       ),
     );
   }
 }
+
+// posts
+//                 .map((post) => GestureDetector(
+//                       onTap: () {
+//                         Navigator.push(
+//                             context,
+//                             MaterialPageRoute(
+//                               builder: (ctxt) => PostDetail(post: post),
+//                             ));
+//                       },
+//                       child: Post(
+//                         post: post,
+//                       ),
+//                     ))
+//                 .toList(),
