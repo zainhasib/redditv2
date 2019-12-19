@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:redditv2/screens/Subreddit.dart';
 import 'package:redditv2/utils/FetchToken.dart';
 import 'dart:convert';
 
@@ -14,7 +15,8 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   var accessToken;
-  List<Widget> subreddits;
+  List<Widget> subreddits = [];
+  bool loaded = false;
 
   Future searchSubreddit(String term, String options) async {
     var url = 'https://oauth.reddit.com/api/' + term + '?' + options;
@@ -29,21 +31,77 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     fetchToken().then((v) {
       accessToken = json.decode(v.body)['access_token'];
-      searchSubreddit('search_reddit_names', 'query=' + widget.searchTerm)
+      searchSubreddit('search_subreddits', 'query=' + widget.searchTerm)
           .then((res) {
-        final List data = json.decode(res.body)['names'];
+        setState(() {
+          loaded = true;
+        });
+        final List data = json.decode(res.body)['subreddits'];
         if (data != null) {
           if (data.length > 0) {
             setState(() {
               data.forEach((d) {
-                subreddits.add(
-                  Container(
+                subreddits.add(GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctxt) => Subreddit(
+                            subreddit: d['name'],
+                          ),
+                        ));
+                  },
+                  child: Container(
+                    color: Color(0xFF333333),
+                    margin: EdgeInsets.only(
+                      top: 5,
+                      bottom: 5,
+                    ),
                     child: Padding(
                       padding: EdgeInsets.all(10),
-                      child: Text(d),
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                height: 40,
+                                width: 40,
+                                margin: EdgeInsets.only(left: 20, right: 20),
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: d['icon_img'] != ''
+                                        ? NetworkImage(d['icon_img'])
+                                        : NetworkImage(
+                                            'https://cdn3.iconfinder.com/data/icons/2018-social-media-logotypes/1000/2018_social_media_popular_app_logo_reddit-512.png'),
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0)),
+                                ),
+                                child: Container(),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    'r/' + d['name'],
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    d['subscriber_count'].toString() +
+                                        ' subscribers',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
+                ));
               });
             });
           }
@@ -63,10 +121,20 @@ class _SearchPageState extends State<SearchPage> {
         title: Text('Search result'),
       ),
       body: Container(
-          color: Colors.black,
-          child: ListView(
-            children: subreddits.map((d) => d),
-          )),
+        color: Colors.black,
+        child: ListView(
+          children: loaded
+              ? subreddits.map((d) => d).toList()
+              : [
+                  Container(
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ],
+        ),
+      ),
     );
   }
 }
