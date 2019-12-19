@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:redditv2/models/Post.dart' as PostModel;
+import 'package:redditv2/utils/FetchToken.dart';
 import 'package:video_player/video_player.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Post extends StatefulWidget {
   const Post({Key key, this.post}) : super(key: key);
@@ -10,9 +13,31 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  bool upvoted = false;
-  bool downvoted = false;
+  Map<String, int> votes = {'vote': 1, 'downvote': -1, 'novote': 0};
   VideoPlayerController _controller;
+  var accessToken;
+  int upvotes;
+
+  Future postVote(String action, String options) async {
+    var url = 'https://oauth.reddit.com/api/' + action + '?' + options;
+    print(url);
+    Map<String, String> headers = {'Authorization': 'Bearer ' + accessToken};
+    var response = await http.post(url, headers: headers);
+    return response;
+  }
+
+  void vote(int dir, String id) {
+    fetchToken().then((v) {
+      Map<String, dynamic> tokens = json.decode(v.body);
+      accessToken = tokens['access_token'];
+      postVote('vote', 'id=' + id.toString() + '&dir=' + dir.toString())
+          .then((v) {
+        print(v.body);
+      }).catchError((e) {
+        print(e);
+      });
+    }).catchError((e) {});
+  }
 
   @override
   void initState() {
@@ -24,19 +49,21 @@ class _PostState extends State<Post> {
           _controller.setLooping(true);
         });
       });
+    setState(() {
+      if (widget.post.likes != null) {
+        if (widget.post.likes) {
+          upvotes = 1;
+        } else {
+          upvotes = -1;
+        }
+      } else {
+        upvotes = 0;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.post.likes != null) {
-      if (widget.post.likes)
-        upvoted = true;
-      else
-        downvoted = true;
-    } else {
-      upvoted = false;
-      downvoted = false;
-    }
     var image = Image.asset(widget.post.imageUrl);
     var date = DateTime.now().difference(
         new DateTime.fromMillisecondsSinceEpoch(
@@ -160,12 +187,21 @@ class _PostState extends State<Post> {
                   children: <Widget>[
                     IconButton(
                       icon: Icon(Icons.arrow_upward,
-                          color: upvoted ? Colors.red : Colors.grey),
+                          color: upvotes == 1 ? Colors.red : Colors.grey),
                       splashColor: Colors.orange,
                       onPressed: () {
-                        setState(() {
-                          upvoted = !upvoted;
-                          if (upvoted) downvoted = false;
+                        this.setState(() {
+                          if (upvotes == 0) {
+                            upvotes = 1;
+                            widget.post.ups += 1;
+                          } else if (upvotes == -1) {
+                            upvotes = 1;
+                            widget.post.ups += 2;
+                          } else {
+                            upvotes = 0;
+                            widget.post.ups -= 1;
+                          }
+                          vote(upvotes, 't3_' + widget.post.id);
                         });
                       },
                     ),
@@ -173,8 +209,8 @@ class _PostState extends State<Post> {
                       widget.post.ups > 1000
                           ? (widget.post.ups / 1000).toString() + 'K'
                           : widget.post.ups.toString(),
-                      style:
-                          TextStyle(color: upvoted ? Colors.red : Colors.grey),
+                      style: TextStyle(
+                          color: upvotes == 1 ? Colors.red : Colors.grey),
                     ),
                   ],
                 ),
@@ -182,17 +218,27 @@ class _PostState extends State<Post> {
                   children: <Widget>[
                     IconButton(
                       icon: Icon(Icons.arrow_downward,
-                          color: downvoted ? Colors.blue : Colors.grey),
+                          color: upvotes == -1 ? Colors.blue : Colors.grey),
                       onPressed: () {
                         setState(() {
-                          downvoted = !downvoted;
-                          if (downvoted) upvoted = false;
+                          if (upvotes == 0) {
+                            upvotes = -1;
+                            widget.post.ups -= 1;
+                          } else if (upvotes == 1) {
+                            upvotes = -1;
+                            widget.post.ups -= 2;
+                          } else {
+                            upvotes = 0;
+                            widget.post.ups += 1;
+                          }
+                          vote(upvotes, 't3_' + widget.post.id);
                         });
                       },
                     ),
                     Text(
                       widget.post.downs.toString(),
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(
+                          color: upvotes == -1 ? Colors.blue : Colors.grey),
                     ),
                   ],
                 ),

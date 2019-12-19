@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:redditv2/utils/FetchToken.dart';
 import 'package:redditv2/widgets/Comment.dart';
 import 'package:redditv2/widgets/Post.dart';
 import '../models/Post.dart' as PostModel;
@@ -16,16 +17,6 @@ class _PostDetailState extends State<PostDetail> {
   var accessToken;
   var comments = <String>[];
   var loaded = false;
-
-  Future fetchToken() async {
-    var url =
-        'https://www.reddit.com/api/v1/access_token?grant_type=refresh_token&refresh_token=10667572874-C_BHgHe98oTlUc4O4qKZoyCYFSY';
-    Map<String, String> headers = {
-      'Authorization': 'Basic M0g2RzY2Qm1ZRmFfOHc6'
-    };
-    var response = await http.post(url, headers: headers);
-    return response;
-  }
 
   Future<dynamic> fetchData() async {
     var url = 'https://oauth.reddit.com/r/' +

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:redditv2/screens/PostDetail.dart';
+import 'package:redditv2/utils/FetchToken.dart';
 import 'package:redditv2/widgets/Post.dart';
 import '../models/Post.dart' as PostModel;
 import 'dart:convert';
@@ -17,16 +18,6 @@ class _PostListState extends State<PostList> {
   var accessToken;
   var loaded = false;
   var posts = <PostModel.Post>[];
-
-  Future fetchToken() async {
-    var url =
-        'https://www.reddit.com/api/v1/access_token?grant_type=refresh_token&refresh_token=10667572874-C_BHgHe98oTlUc4O4qKZoyCYFSY';
-    Map<String, String> headers = {
-      'Authorization': 'Basic M0g2RzY2Qm1ZRmFfOHc6'
-    };
-    var response = await http.post(url, headers: headers);
-    return response;
-  }
 
   Future fetchData(String type, String limit) async {
     var url =
@@ -46,10 +37,6 @@ class _PostListState extends State<PostList> {
       Map<String, dynamic> tokens = json.decode(v.body);
       accessToken = tokens['access_token'];
       fetchData(widget.type, widget.limit).then((value) {
-        // Future.delayed(Duration(seconds: 5), () {
-        //   this.fetchCompleteData();
-        // });
-        print('Here');
         List<dynamic> data = json.decode(value.body)['data']['children'];
         setState(() {
           loaded = true;
@@ -70,6 +57,7 @@ class _PostListState extends State<PostList> {
                     postData['downs'],
                     postData['created_utc'],
                     postData['is_video'],
+                    0,
                   ),
                 );
               } else if (f['data']['preview']['images'][0]['variants']['gif'] !=
@@ -101,6 +89,7 @@ class _PostListState extends State<PostList> {
                     postData['downs'],
                     postData['created_utc'],
                     postData['is_video'],
+                    0,
                   ),
                 );
               } else {
@@ -130,6 +119,7 @@ class _PostListState extends State<PostList> {
                   postData['downs'],
                   postData['created_utc'],
                   postData['is_video'],
+                  0,
                 ));
               }
             } else {
@@ -146,6 +136,7 @@ class _PostListState extends State<PostList> {
                   postData['downs'],
                   postData['created_utc'],
                   postData['is_video'],
+                  0,
                 ),
               );
             }
