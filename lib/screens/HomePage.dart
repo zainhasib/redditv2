@@ -90,36 +90,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ? TabBarView(
               children: <Widget>[
                 Container(
-                  width: MediaQuery.of(context).size.width,
                   color: Colors.black,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: DropdownButton<String>(
-                          style: TextStyle(color: Colors.white),
-                          items:
-                              <String>['Hot', 'Top', 'New'].map((String value) {
-                            return new DropdownMenuItem<String>(
-                              value: value,
-                              child: new Text(
-                                value,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (_) {},
-                        ),
-                      ),
-                      Expanded(
-                        child: PostList(
-                          type: 'best',
-                          limit: '20',
-                        ),
-                      )
-                    ],
+                  child: PostList(
+                    type: 'best',
+                    limit: '20',
                   ),
                 ),
                 Container(
