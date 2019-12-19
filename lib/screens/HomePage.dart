@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:redditv2/widgets/Favorites.dart';
+import 'package:redditv2/widgets/HeaderSearch.dart';
 import 'package:redditv2/widgets/PostList.dart';
 import '../models/Post.dart' as PostModel;
 import '../widgets/Drawer.dart';
@@ -33,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: HeaderSearch(),
         backgroundColor: Colors.black87,
         bottom: _selectedIndex == 0
             ? TabBar(
@@ -109,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             PostList(
-                              type: 'r/askreddit/best',
+                              type: 'top',
                               limit: '20',
                             ),
                           ])
